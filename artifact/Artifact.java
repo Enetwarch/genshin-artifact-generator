@@ -1,9 +1,13 @@
 package artifact;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.function.Supplier;
 
 public class Artifact {
     
+    private static final Random random = new Random();
+
     public enum Type {
         FLOWER("Flower of Life"),
         PLUME("Plume of Death"),
@@ -26,7 +30,6 @@ public class Artifact {
         ATK_PERCENT("ATK%"),
         DEF_PERCENT("DEF%"),
         PHYSICAL_DMG_BONUS("Physical DMG Bonus%"),
-        ELEMENTAL_DMG_BONUS("Elemental DMG Bonus%"),
         PYRO_DMG_BONUS("Pyro DMG Bonus%"),
         ELECTRO_DMG_BONUS("Electro DMG Bonus%"),
         CRYO_DMG_BONUS("Cryo DMG Bonus%"),
@@ -49,7 +52,7 @@ public class Artifact {
         }
     }
 
-    public static Map<Stats, double[]> MAIN_STATS = new HashMap<>();
+    private static final Map<Stats, double[]> MAIN_STATS = new HashMap<>();
     static {
         MAIN_STATS.put(Stats.HP, new double[] {717, 920, 1123, 1326, 1530, 1733, 1936, 2139, 2342, 2545, 2749, 2952, 3155, 3358, 3561, 3764, 3967, 4171, 4374, 4577, 4780});
         MAIN_STATS.put(Stats.ATK, new double[] {47, 60, 73, 86, 100, 113, 126, 139, 152, 166, 179, 192, 205, 219, 232, 245, 258, 272, 285, 298, 311});
@@ -57,14 +60,20 @@ public class Artifact {
         MAIN_STATS.put(Stats.ATK_PERCENT, new double[] {7.0, 9.0, 11.0, 12.9, 14.9, 16.9, 18.9, 20.9, 22.8, 24.8, 26.8, 28.8, 30.8, 32.8, 34.7, 36.7, 38.7, 40.7, 42.7, 44.6, 46.6});
         MAIN_STATS.put(Stats.DEF_PERCENT, new double[] {8.7, 11.2, 13.7, 16.2, 18.6, 21.1, 23.6, 26.1, 28.6, 31.0, 33.5, 36.0, 38.5, 40.9, 43.4, 45.9, 48.4, 50.8, 53.3, 55.8, 58.3});
         MAIN_STATS.put(Stats.PHYSICAL_DMG_BONUS, new double[] {8.7, 11.2, 13.7, 16.2, 18.6, 21.1, 23.6, 26.1, 28.6, 31.0, 33.5, 36.0, 38.5, 40.9, 43.4, 45.9, 48.4, 50.8, 53.3, 55.8, 58.3});
-        MAIN_STATS.put(Stats.ELEMENTAL_DMG_BONUS, new double[] {7.0, 9.0, 11.0, 12.9, 14.9, 16.9, 18.9, 20.9, 22.8, 24.8, 26.8, 28.8, 30.8, 32.8, 34.7, 36.7, 38.7, 40.7, 42.7, 44.6, 46.6});
+        MAIN_STATS.put(Stats.PYRO_DMG_BONUS, new double[] {28.0, 35.9, 43.8, 51.8, 59.7, 67.6, 75.5, 83.5, 91.4, 99.3, 107.2, 115.2, 123.1, 131.0, 138.9, 146.9, 154.8, 162.7, 170.6, 178.6, 186.5});
+        MAIN_STATS.put(Stats.ELECTRO_DMG_BONUS, new double[] {28.0, 35.9, 43.8, 51.8, 59.7, 67.6, 75.5, 83.5, 91.4, 99.3, 107.2, 115.2, 123.1, 131.0, 138.9, 146.9, 154.8, 162.7, 170.6, 178.6, 186.5});
+        MAIN_STATS.put(Stats.CRYO_DMG_BONUS, new double[] {28.0, 35.9, 43.8, 51.8, 59.7, 67.6, 75.5, 83.5, 91.4, 99.3, 107.2, 115.2, 123.1, 131.0, 138.9, 146.9, 154.8, 162.7, 170.6, 178.6, 186.5});
+        MAIN_STATS.put(Stats.HYDRO_DMG_BONUS, new double[] {28.0, 35.9, 43.8, 51.8, 59.7, 67.6, 75.5, 83.5, 91.4, 99.3, 107.2, 115.2, 123.1, 131.0, 138.9, 146.9, 154.8, 162.7, 170.6, 178.6, 186.5});
+        MAIN_STATS.put(Stats.DENDRO_DMG_BONUS, new double[] {28.0, 35.9, 43.8, 51.8, 59.7, 67.6, 75.5, 83.5, 91.4, 99.3, 107.2, 115.2, 123.1, 131.0, 138.9, 146.9, 154.8, 162.7, 170.6, 178.6, 186.5});
+        MAIN_STATS.put(Stats.ANEMO_DMG_BONUS, new double[] {28.0, 35.9, 43.8, 51.8, 59.7, 67.6, 75.5, 83.5, 91.4, 99.3, 107.2, 115.2, 123.1, 131.0, 138.9, 146.9, 154.8, 162.7, 170.6, 178.6, 186.5});
+        MAIN_STATS.put(Stats.GEO_DMG_BONUS, new double[] {28.0, 35.9, 43.8, 51.8, 59.7, 67.6, 75.5, 83.5, 91.4, 99.3, 107.2, 115.2, 123.1, 131.0, 138.9, 146.9, 154.8, 162.7, 170.6, 178.6, 186.5});
         MAIN_STATS.put(Stats.ELEMENTAL_MASTERY, new double[] {28.0, 35.9, 43.8, 51.8, 59.7, 67.6, 75.5, 83.5, 91.4, 99.3, 107.2, 115.2, 123.1, 131.0, 138.9, 146.9, 154.8, 162.7, 170.6, 178.6, 186.5});
         MAIN_STATS.put(Stats.ENERGY_RECHARGE, new double[] {7.8, 10.0, 12.2, 14.4, 16.6, 18.8, 21.0, 23.2, 25.4, 27.6, 29.8, 32.0, 34.2, 36.4, 38.6, 40.8, 43.0, 45.2, 47.4, 49.6, 51.8});
         MAIN_STATS.put(Stats.CRIT_RATE, new double[] {4.7, 6.0, 7.3, 8.6, 9.9, 11.3, 12.6, 13.9, 15.2, 16.6, 17.9, 19.2, 20.5, 21.8, 23.2, 24.5, 25.8, 27.1, 28.4, 29.8, 31.1});
         MAIN_STATS.put(Stats.CRIT_DMG, new double[] {9.3, 12.0, 14.6, 17.3, 19.9, 22.5, 25.2, 27.8, 30.5, 33.1, 35.7, 38.4, 41.0, 43.7, 46.3, 49.0, 51.6, 54.2, 56.9, 59.5, 62.2});
         MAIN_STATS.put(Stats.HEALING_BONUS, new double[] {5.4, 6.9, 8.4, 10.0, 11.5, 13.0, 14.5, 16.1, 17.6, 19.1, 20.6, 22.1, 23.7, 25.2, 26.7, 28.2, 29.8, 31.3, 32.8, 34.3, 35.9});
     } // The double[] arrays refer to +0, +1, +2... +20 because there is no clear increment for each level gain. There are hidden decimals that HoYoverse hasn't disclosed.
-    public static Map<Stats, double[]> SUB_STATS = new HashMap<>();
+    private static final Map<Stats, double[]> SUB_STATS = new HashMap<>();
     static {
         SUB_STATS.put(Stats.HP, new double[] {209.13, 239.00, 268.88, 298.75});
         SUB_STATS.put(Stats.ATK, new double[] {13.62, 15.56, 17.51, 19.45});
@@ -78,6 +87,177 @@ public class Artifact {
         SUB_STATS.put(Stats.CRIT_DMG, new double[] {5.44, 6.22, 6.99, 7.77});
     } // The arrays refer to low and high rolls. 70%/80%/90%/100% of the max value.
 
+    private Type artifactType;
+    private Map<Stats, Double> mainStat;
+    public Artifact() {
+        initializeType();
+        initializeMainStat();
+    }
 
+
+    ////// ARTIFACT TYPE METHODS
+    
+
+    private static final Supplier<Type> randomTypeSetter = () -> {
+        // Generates a random artifact type.
+        Type[] typeArray = Type.values();
+        int randomType = random.nextInt(typeArray.length);
+        return typeArray[randomType];
+    };
+
+    private void initializeType() {
+        this.artifactType = randomTypeSetter.get();
+    }
+
+
+    ////// MAIN STAT METHODS
+
+
+    // RNG for unequal chances.
+    private static float mainStatRNG() {
+        // Generates a number from 0 to 1 including decimal points.
+        // Perfect for determining chances.
+        return random.nextFloat();
+    }
+
+    // Main Setter method
+    private void initializeMainStatMap(Stats mainStatName) {
+        this.mainStat = new HashMap<>();
+        mainStat.put(mainStatName, MAIN_STATS.get(mainStatName)[0]);
+    }
+
+    private void initializeMainStatFlower() {
+        /*
+            Flower of Life
+            100% -> HP
+        */
+        initializeMainStatMap(Stats.HP);
+    }
+    
+    private void initializeMainStatPlume() {
+        /*
+            Plume of Death
+            100% -> ATK
+        */
+        initializeMainStatMap(Stats.ATK);
+    }
+    
+    private void initializeMainStatSands() {
+        /* 
+            Sands of Eon
+            26.68% -> HP%
+            26.66% -> ATK%
+            26.66% -> DEF%
+            10.00% -> Energy Recharge%
+            10.00% -> Elemental Mastery
+        */
+        float rng = mainStatRNG();
+        if (rng <= .2668) {
+            initializeMainStatMap(Stats.HP_PERCENT);
+        } else if (rng <= .5334) {
+            initializeMainStatMap(Stats.ATK_PERCENT);
+        } else if (rng <= .8) {
+            initializeMainStatMap(Stats.DEF_PERCENT);
+        } else if (rng <= .9) {
+            initializeMainStatMap(Stats.ENERGY_RECHARGE);
+        } else {
+            initializeMainStatMap(Stats.ELEMENTAL_MASTERY);
+        }
+    }
+    
+    private void initializeMainStatGoblet() {
+        /*
+            Goblet of Eonothem
+            19.25% -> HP%
+            19.25% -> ATK%
+            19.00% -> DEF%
+            5.00% -> Pyro DMG Bonus%
+            5.00% -> Electro DMG Bonus%
+            5.00% -> Cryo DMG Bonus%
+            5.00% -> Hydro DMG Bonus%
+            5.00% -> Dendro DMG Bonus%
+            5.00% -> Anemo DMG Bonus%
+            5.00% -> Geo DMG Bonus%
+            5.00% -> Physical DMG Bonus%
+            2.50% -> Elemental Mastery
+        */
+        float rng = mainStatRNG();
+        if (rng <= .1925) {
+            initializeMainStatMap(Stats.HP_PERCENT);
+        } else if (rng <= .385) {
+            initializeMainStatMap(Stats.ATK_PERCENT);
+        } else if (rng <= .575) {
+            initializeMainStatMap(Stats.DEF_PERCENT);
+        } else if (rng <= .625) {
+            initializeMainStatMap(Stats.PYRO_DMG_BONUS);
+        } else if (rng <= .675) {
+            initializeMainStatMap(Stats.ELECTRO_DMG_BONUS);
+        } else if (rng <= .725) {
+            initializeMainStatMap(Stats.CRYO_DMG_BONUS);
+        } else if (rng <= .775) {
+            initializeMainStatMap(Stats.HYDRO_DMG_BONUS);
+        } else if (rng <= .825) {
+            initializeMainStatMap(Stats.DENDRO_DMG_BONUS);
+        } else if (rng <= .875) {
+            initializeMainStatMap(Stats.ANEMO_DMG_BONUS);
+        } else if (rng <= .925) {
+            initializeMainStatMap(Stats.GEO_DMG_BONUS);
+        } else if (rng <= .975) {
+            initializeMainStatMap(Stats.PHYSICAL_DMG_BONUS);
+        } else {
+            initializeMainStatMap(Stats.ELEMENTAL_MASTERY);
+        }
+    }
+    
+    private void initializeMainStatCirclet() {
+        /*
+            Circlet of Logos
+            22.00% -> HP%
+            22.00% -> ATK%
+            22.00% -> DEF%
+            10.00% -> CRIT Rate%
+            10.00% -> CRIT DMG%
+            10.00% -> Healing Bonus%0
+            4.00% -> Elemental Mastery
+        */
+        float rng = mainStatRNG();
+        if (rng <= .22) {
+            initializeMainStatMap(Stats.HP_PERCENT);
+        } else if (rng <= .44) {
+            initializeMainStatMap(Stats.ATK_PERCENT);
+        } else if (rng <= .66) {
+            initializeMainStatMap(Stats.DEF_PERCENT);
+        } else if (rng <= .76) {
+            initializeMainStatMap(Stats.CRIT_RATE);
+        } else if (rng <= .86) {
+            initializeMainStatMap(Stats.CRIT_DMG);
+        } else if (rng <= .96) {
+            initializeMainStatMap(Stats.HEALING_BONUS);
+        } else {
+            initializeMainStatMap(Stats.ELEMENTAL_MASTERY);
+        }
+    }
+    
+    private void initializeMainStat() {
+        switch (artifactType) {
+            case FLOWER -> initializeMainStatFlower();
+            case PLUME -> initializeMainStatPlume();
+            case SANDS -> initializeMainStatSands();
+            case GOBLET -> initializeMainStatGoblet();
+            case CIRCLET -> initializeMainStatCirclet();
+        }
+    }
+ 
+    public void printSampleOutput() {
+        StringBuilder sampleOutput = new StringBuilder();
+        sampleOutput.append(String.format("%s\n\n", artifactType.getType().toUpperCase()));
+        for (Map.Entry<Stats, Double> mainStatEntry: mainStat.entrySet()) {
+            String mainStatName = mainStatEntry.getKey().getStat();
+            double mainStatValue = mainStatEntry.getValue();
+            sampleOutput.append("MAIN STAT\n");
+            sampleOutput.append(String.format("%-15s %.2f\n\n", mainStatName, mainStatValue));
+        }
+        System.out.print(sampleOutput);
+    }
 
 }
