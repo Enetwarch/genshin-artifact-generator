@@ -2,7 +2,10 @@ package artifact;
 import data.Data;
 import data.Data.Stats;
 import data.Data.Type;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
@@ -13,9 +16,11 @@ public class Artifact {
 
     private Type artifactType;
     private Map<Stats, Double> mainStat;
+    private Map<Stats, Double> subStats;
     public Artifact() {
         this.artifactType = TYPE_SUPPLIER.get();
         this.mainStat = MAIN_STAT_SUPPLIER.get();
+        this.subStats = SUBSTAT_SUPPLIER.get();
     }
 
 
@@ -99,19 +104,47 @@ public class Artifact {
         return mainStat;
     };
 
+    
+    ////// SUBSTAT SUPPLIERS
+    
 
-
+    private final Supplier<Map<Stats, Double>> SUBSTAT_SUPPLIER = () -> {
+        subStats = new LinkedHashMap<>();
+        int startingSubStats = random.nextInt(2) + 3; // 3 or 4.
+        List<Stats> subStatsPool = new ArrayList<>(Data.SUB_STATS.keySet());
+        for (Map.Entry<Stats, Double> mainStatEntry : mainStat.entrySet()) {
+            // Remove main stat from substat pool.
+            subStatsPool.remove(mainStatEntry.getKey());
+        }
+        for (int i = 0; i < startingSubStats; i++) {
+            // Generates 3-4 random substats of varying rolls.
+            int randomSubStatIndex = random.nextInt(subStatsPool.size());
+            Stats randomSubStatName = subStatsPool.get(randomSubStatIndex);
+            double[] randomSubStatValues = Data.SUB_STATS.get(randomSubStatName);
+            double randomSubStatValue = randomSubStatValues[random.nextInt(randomSubStatValues.length)];
+            subStats.put(randomSubStatName, randomSubStatValue);
+            subStatsPool.remove(randomSubStatName);
+        }
+        return subStats;
+    };
 
 
     public void printSampleOutput() {
         StringBuilder sampleOutput = new StringBuilder();
-        sampleOutput.append(String.format("%s\n\n", artifactType.getType().toUpperCase()));
+        sampleOutput.append(String.format("%s\n", artifactType.getType().toUpperCase()));
+        sampleOutput.append("MAIN STAT\n");
         for (Map.Entry<Stats, Double> mainStatEntry: mainStat.entrySet()) {
             String mainStatName = mainStatEntry.getKey().getStat();
             double mainStatValue = mainStatEntry.getValue();
-            sampleOutput.append("MAIN STAT\n");
-            sampleOutput.append(String.format("%-20s %.2f\n\n", mainStatName, mainStatValue));
+            sampleOutput.append(String.format("%-20s %.2f\n", mainStatName, mainStatValue));
         }
+        sampleOutput.append("SUBSTATS\n");
+        for (Map.Entry<Stats, Double> subStatsEntry: subStats.entrySet()) {
+            String subStatName = subStatsEntry.getKey().getStat();
+            double subStatValue = subStatsEntry.getValue();
+            sampleOutput.append(String.format("%-20s %.2f\n", subStatName, subStatValue));
+        }
+        sampleOutput.append("\n");
         System.out.print(sampleOutput);
     }
 
