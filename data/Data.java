@@ -1,5 +1,5 @@
 package data;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 public class Data {
@@ -22,6 +22,7 @@ public class Data {
             return artifactType;
         }
     }
+
     public enum Stats {
         HP("HP"),
         ATK("ATK"),
@@ -56,7 +57,7 @@ public class Data {
     ////// HASHMAPS
 
 
-    public static final Map<Stats, double[]> MAIN_STATS = new HashMap<>();
+    public static final Map<Stats, double[]> MAIN_STATS = new EnumMap<>(Stats.class);
     static {
         MAIN_STATS.put(Stats.HP, new double[] {717, 920, 1123, 1326, 1530, 1733, 1936, 2139, 2342, 2545, 2749, 2952, 3155, 3358, 3561, 3764, 3967, 4171, 4374, 4577, 4780});
         MAIN_STATS.put(Stats.ATK, new double[] {47, 60, 73, 86, 100, 113, 126, 139, 152, 166, 179, 192, 205, 219, 232, 245, 258, 272, 285, 298, 311});
@@ -77,7 +78,8 @@ public class Data {
         MAIN_STATS.put(Stats.CRIT_DMG, new double[] {9.3, 12.0, 14.6, 17.3, 19.9, 22.5, 25.2, 27.8, 30.5, 33.1, 35.7, 38.4, 41.0, 43.7, 46.3, 49.0, 51.6, 54.2, 56.9, 59.5, 62.2});
         MAIN_STATS.put(Stats.HEALING_BONUS, new double[] {5.4, 6.9, 8.4, 10.0, 11.5, 13.0, 14.5, 16.1, 17.6, 19.1, 20.6, 22.1, 23.7, 25.2, 26.7, 28.2, 29.8, 31.3, 32.8, 34.3, 35.9});
     } // The double[] arrays refer to +0, +1, +2... +20 because there is no clear increment for each level gain. There are hidden decimals that HoYoverse hasn't disclosed.
-    public static final Map<Stats, double[]> SUB_STATS = new HashMap<>();
+
+    public static final Map<Stats, double[]> SUB_STATS = new EnumMap<>(Stats.class);
     static {
         SUB_STATS.put(Stats.HP, new double[] {209.13, 239.00, 268.88, 298.75});
         SUB_STATS.put(Stats.ATK, new double[] {13.62, 15.56, 17.51, 19.45});
