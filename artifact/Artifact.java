@@ -2,7 +2,6 @@ package artifact;
 import data.Data;
 import data.Data.Stats;
 import data.Data.Type;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
@@ -15,9 +14,9 @@ public class Artifact {
     
     private static final Random random = new Random();
 
-    private Type artifactType;
-    private Map<Stats, Double> mainStat;
-    private Map<Stats, Double> subStats;
+    protected Type artifactType;
+    protected Map<Stats, Double> mainStat;
+    protected Map<Stats, Double> subStats;
     public Artifact() {
         this.artifactType = TYPE_SUPPLIER.get();
         this.mainStat = MAIN_STAT_SUPPLIER.get();
@@ -128,42 +127,5 @@ public class Artifact {
         }
         return subStats;
     };
-
-
-    ////// OUTPUT METHODS
-
-
-    private static String formatStatValue(String statName, double statValue) {
-        // Number formatting conventions of genshin artifacts.
-        DecimalFormat df;
-        if (statName.contains("%")) {
-            df = new DecimalFormat("#.0");
-            return df.format(statValue) + "%";
-        } else {
-            df = new DecimalFormat("#,###");
-            return df.format(statValue);
-        }
-    }
-
-    public void printSampleOutput() {
-        StringBuilder sampleOutput = new StringBuilder();
-        sampleOutput.append(String.format("%s\n", artifactType.getType()));
-        sampleOutput.append("MAIN STAT\n");
-        for (Map.Entry<Stats, Double> mainStatEntry: mainStat.entrySet()) {
-            String mainStatName = mainStatEntry.getKey().getStat();
-            double mainStatValue = mainStatEntry.getValue();
-            String formattedStatValue = formatStatValue(mainStatName, mainStatValue);
-            sampleOutput.append(String.format("%-20s %5s\n", mainStatName, formattedStatValue));
-        }
-        sampleOutput.append("SUBSTATS\n");
-        for (Map.Entry<Stats, Double> subStatsEntry: subStats.entrySet()) {
-            String subStatName = subStatsEntry.getKey().getStat();
-            double subStatValue = subStatsEntry.getValue();
-            String formattedStatValue = formatStatValue(subStatName, subStatValue);
-            sampleOutput.append(String.format("%-20s %5s\n", subStatName, formattedStatValue));
-        }
-        sampleOutput.append("\n");
-        System.out.print(sampleOutput);
-    }
 
 }
