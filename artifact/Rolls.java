@@ -22,25 +22,25 @@ public class Rolls extends Artifact {
         }
     }
 
-    public void printSampleOutput() {
-        StringBuilder sampleOutput = new StringBuilder();
-        sampleOutput.append(String.format("%s\n", artifactType.getType()));
-        sampleOutput.append("MAIN STAT\n");
+    public void printArtifactStats() {
+        StringBuilder artifactStats = new StringBuilder();
+        artifactStats.append(String.format("%s\n", artifactType.getType()));
+        artifactStats.append("MAIN STAT\n");
         for (Map.Entry<Stats, Double> mainStatEntry: mainStat.entrySet()) {
             String mainStatName = mainStatEntry.getKey().getStat();
             double mainStatValue = mainStatEntry.getValue();
             String formattedStatValue = formatStatValue(mainStatName, mainStatValue);
-            sampleOutput.append(String.format("%-20s %5s\n", mainStatName, formattedStatValue));
+            artifactStats.append(String.format("%-20s %5s\n", mainStatName, formattedStatValue));
         }
-        sampleOutput.append("SUBSTATS\n");
+        artifactStats.append("SUBSTATS\n");
         for (Map.Entry<Stats, Double> subStatsEntry: subStats.entrySet()) {
             String subStatName = subStatsEntry.getKey().getStat();
             double subStatValue = subStatsEntry.getValue();
             String formattedStatValue = formatStatValue(subStatName, subStatValue);
-            sampleOutput.append(String.format("%-20s %5s\n", subStatName, formattedStatValue));
+            artifactStats.append(String.format("%-20s %5s\n", subStatName, formattedStatValue));
         }
-        sampleOutput.append("\n");
-        System.out.print(sampleOutput);
+        artifactStats.append("\n");
+        System.out.print(artifactStats);
     }
 
 }
