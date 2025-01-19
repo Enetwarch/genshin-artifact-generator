@@ -12,12 +12,14 @@ import java.util.function.Supplier;
 
 public class Artifact {
     
-    private static final Random random = new Random();
+    protected static final Random random = new Random();
 
+    protected int artifactLevel;
     protected Type artifactType;
     protected Map<Stats, Double> mainStat;
     protected Map<Stats, Double> subStats;
     public Artifact() {
+        this.artifactLevel = 0;
         this.artifactType = TYPE_SUPPLIER.get();
         this.mainStat = MAIN_STAT_SUPPLIER.get();
         this.subStats = SUBSTAT_SUPPLIER.get();
