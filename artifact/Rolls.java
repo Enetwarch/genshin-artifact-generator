@@ -25,24 +25,12 @@ public class Rolls extends Artifact {
     }
 
 
-    ////// GENERAL HELPER METHODS
-    
+    ////// CHANGE METHODS
 
-    // Stat value formatter
-    private static String formatStatValue(String statName, double statValue) {
-        // Number formatting conventions of genshin artifacts.
-        DecimalFormat df;
-        if (statName.contains("%")) {
-            df = new DecimalFormat("#.0");
-            return df.format(statValue) + "%";
-        } else {
-            df = new DecimalFormat("#,###");
-            return df.format(statValue);
-        }
-    }
 
     // Change.UPDATE Helper method
     private void updateStatValue(String statName, double statValue) {
+        // Adds a >>> and new value to the artifact.
         String formattedStatValue = formatStatValue(statName, statValue);
         int statValueIndex = artifactStats.indexOf(String.format("%-20s", statName));
         artifactStats.insert(statValueIndex  + 26, String.format(" >>> %-5s", formattedStatValue));
@@ -50,6 +38,7 @@ public class Rolls extends Artifact {
 
     // Change.MERGE Helper method
     private void mergeStatValue(String statName, double statValue) {
+        // Removes the old value and >>> from the artifact.
         String formattedStatValue = formatStatValue(statName, statValue);
         int statValueIndex = artifactStats.indexOf(String.format("%-20s", statName));
         artifactStats.replace(statValueIndex + 21, statValueIndex + 36, String.format("%5s", formattedStatValue));
@@ -71,6 +60,7 @@ public class Rolls extends Artifact {
 
     // changeSubStatsEntry Helper method
     private boolean checkSubStatChanges() {
+        // Decides whether to skip checkSubStatChanges merging or not.
         for (boolean hasTrue : changedSubStats) {
             if (hasTrue) {
                 return true;
@@ -81,8 +71,10 @@ public class Rolls extends Artifact {
 
     // changeSubStats Helper method
     private void changeSubStatsEntry(Change changeWhat) {
+        // Decides initial requirements for changeSubStats.
         switch (changeWhat) {
             case UPDATE -> {
+                // Ever 4 levels gains one substat.
                 int gainSubStatUpgrades = artifactLevel / 4 - gainedSubStatUpgrades;
                 if (gainSubStatUpgrades == 0) {
                     return;
@@ -98,17 +90,11 @@ public class Rolls extends Artifact {
         }
     }
 
-
-    ////// CHANGE METHODS
-
-
     private void changeMainStat(Change changeWhat) {
         for (Map.Entry<Stats, Double> mainStatEntry : mainStat.entrySet()) {
-            // Inserts a >>> newStatValue after each upgrade.
             Stats mainStatEnum = mainStatEntry.getKey();
             String mainStatName = mainStatEnum.getStat();
             double mainStatValue = Data.MAIN_STATS.get(mainStatEnum)[artifactLevel];
-            // Refactored variables
             switch (changeWhat) {
                 case UPDATE -> {
                     mainStat.put(mainStatEnum, mainStatValue);
@@ -144,7 +130,21 @@ public class Rolls extends Artifact {
     ////// OUTPUT METHOD
 
 
+    // Stat value formatter
+    private static String formatStatValue(String statName, double statValue) {
+        // Number formatting conventions of genshin artifacts.
+        DecimalFormat df;
+        if (statName.contains("%")) {
+            df = new DecimalFormat("#.0");
+            return df.format(statValue) + "%";
+        } else {
+            df = new DecimalFormat("#,###");
+            return df.format(statValue);
+        }
+    }
+
     private void printArtifactStats() {
+        // Printed artifact format.
         artifactStats.append(String.format("%-20s\n", artifactType.getType()));
         artifactStats.append("MAIN STAT\n");
         for (Map.Entry<Stats, Double> mainStatEntry : mainStat.entrySet()) {
