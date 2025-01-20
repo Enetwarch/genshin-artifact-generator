@@ -123,12 +123,12 @@ public class Artifact {
 
     private final Supplier<Map<Stats, Double>> SUBSTAT_SUPPLIER = () -> {
         subStats = new LinkedHashMap<>();
-        int startingSubStats = random.nextInt(2) + 3; // 3 or 4.
         List<Stats> subStatsPool = new ArrayList<>(Data.SUB_STATS.keySet());
         for (Map.Entry<Stats, Double> mainStatEntry : mainStat.entrySet()) {
             // Remove main stat from substat pool.
             subStatsPool.remove(mainStatEntry.getKey());
         }
+        int startingSubStats = 4;
         for (int i = 0; i < startingSubStats; i++) {
             // Generates 3-4 random substats of varying rolls.
             subStatSupplierMethod(subStatsPool);
