@@ -3,7 +3,6 @@ import data.Data;
 import data.Data.Stats;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import util.Utility;
@@ -11,101 +10,25 @@ import util.Utility;
 public class Rolls extends Artifact {
 
     private final StringBuilder artifactStats;
-    private final Map<Stats, Double> previousSubStats;
-    private int gainedSubStats;
-    private boolean[] changedSubStats;
+    private final boolean[] changedSubStats;
+    private int gainedSubStatUpgrades;
     public Rolls() {
         super();
         this.artifactStats = new StringBuilder();
-        this.previousSubStats = new LinkedHashMap<>(subStats);
-        this.gainedSubStats = 0;
         this.changedSubStats = new boolean[subStats.size()];
+        this.gainedSubStatUpgrades = 0;
+    }
+
+    private enum Change {
+        UPDATE,
+        MERGE
     }
 
 
-    ////// CALCULATE METHODS
+    ////// GENERAL HELPER METHODS
     
 
-    // updateStats Helper method
-    private void updateStatValue(String statName, double statValue) {
-        String formattedStatValue = formatStatValue(statName, statValue);
-        int statValueIndex = artifactStats.indexOf(String.format("%-20s", statName));
-        artifactStats.insert(statValueIndex  + 26, String.format(" >>> %-5s", formattedStatValue));
-    }
-
-    private void updateMainStat() {
-        for (Map.Entry<Stats, Double> mainStatEntry : mainStat.entrySet()) {
-            // Inserts a >>> newStatValue after each upgrade.
-            Stats mainStatEnum = mainStatEntry.getKey();
-            String mainStatName = mainStatEnum.getStat();
-            double mainStatValue = Data.MAIN_STATS.get(mainStatEnum)[artifactLevel];
-            // Refactored variables
-            updateStatValue(mainStatName, mainStatValue);
-            mainStat.put(mainStatEnum, mainStatValue);
-        }
-    }
-
-    private void updateSubStats() {
-        int gainSubStats = artifactLevel / 4 - gainedSubStats;
-        if (gainSubStats == 0) {
-            return;
-        }
-        List<Stats> artifactSubStats = new ArrayList<>(subStats.keySet());
-        for (int i = 0; i < gainSubStats; i++) {
-            // Selects a substat randomly and upgrades it every 4 artifact levels.
-            int randomSubStatIndex = random.nextInt(artifactSubStats.size());
-            Stats randomSubStatName = artifactSubStats.get(randomSubStatIndex);
-            double[] randomSubStatValues = Data.SUB_STATS.get(randomSubStatName);
-            double randomSubStatValue = randomSubStatValues[random.nextInt(randomSubStatValues.length)];
-            subStats.put(randomSubStatName, subStats.get(randomSubStatName) + randomSubStatValue);
-            changedSubStats[randomSubStatIndex] = true;
-        }
-        int i = 0;
-        for (Map.Entry<Stats,Double> subStatsEntry : subStats.entrySet()) {
-            if (changedSubStats[i]) {
-                String subStatName = subStatsEntry.getKey().getStat();
-                double subStatValue = subStatsEntry.getValue();
-                updateStatValue(subStatName, subStatValue);
-            }
-            i++;
-        }
-        gainedSubStats += gainSubStats;
-    }
-
-    // mergeStats Helper method
-    private void mergeStatValue(String statName, double statValue) {
-        String formattedStatValue = formatStatValue(statName, statValue);
-        int statValueIndex = artifactStats.indexOf(String.format("%-20s", statName));
-        artifactStats.replace(statValueIndex + 21, statValueIndex + 36, String.format("%5s", formattedStatValue));
-    }
-
-    private void mergeMainStat() {
-        for (Map.Entry<Stats, Double> mainStatEntry : mainStat.entrySet()) {
-            String mainStatName = mainStatEntry.getKey().getStat();
-            double mainStatValue = mainStatEntry.getValue();
-            mergeStatValue(mainStatName, mainStatValue);
-        }
-    }
-
-    private void mergeSubStats() {
-        int i = 0;
-        for (Map.Entry<Stats,Double> subStatsEntry : subStats.entrySet()) {
-            if (changedSubStats[i]) {
-                String subStatName = subStatsEntry.getKey().getStat();
-                double subStatValue = subStatsEntry.getValue();
-                String formattedSubStatValue = formatStatValue(subStatName, subStatValue);
-                int subStatIndex = artifactStats.indexOf(String.format("%-20s", subStatName));
-                artifactStats.replace(subStatIndex + 21, subStatIndex + 36, String.format("%5s", formattedSubStatValue));
-            }
-            i++;
-        }
-        changedSubStats = new boolean[subStats.size()];
-    }
-
-
-    ////// OUTPUT METHODS
-
-
+    // Stat value formatter
     private static String formatStatValue(String statName, double statValue) {
         // Number formatting conventions of genshin artifacts.
         DecimalFormat df;
@@ -117,6 +40,109 @@ public class Rolls extends Artifact {
             return df.format(statValue);
         }
     }
+
+    // Change.UPDATE Helper method
+    private void updateStatValue(String statName, double statValue) {
+        String formattedStatValue = formatStatValue(statName, statValue);
+        int statValueIndex = artifactStats.indexOf(String.format("%-20s", statName));
+        artifactStats.insert(statValueIndex  + 26, String.format(" >>> %-5s", formattedStatValue));
+    }
+
+    // Change.MERGE Helper method
+    private void mergeStatValue(String statName, double statValue) {
+        String formattedStatValue = formatStatValue(statName, statValue);
+        int statValueIndex = artifactStats.indexOf(String.format("%-20s", statName));
+        artifactStats.replace(statValueIndex + 21, statValueIndex + 36, String.format("%5s", formattedStatValue));
+    }
+
+    // changeSubStatsEntry Helper method
+    private void upgradeRandomSubStat(int gainSubStatUpgrades) {
+        List<Stats> artifactSubStats = new ArrayList<>(subStats.keySet());
+        for (int i = 0; i < gainSubStatUpgrades; i++) {
+            // Selects a substat randomly and upgrades it every 4 artifact levels.
+            int randomSubStatIndex = random.nextInt(artifactSubStats.size());
+            Stats randomSubStatName = artifactSubStats.get(randomSubStatIndex);
+            double[] randomSubStatValues = Data.SUB_STATS.get(randomSubStatName);
+            double randomSubStatValue = randomSubStatValues[random.nextInt(randomSubStatValues.length)];
+            subStats.put(randomSubStatName, subStats.get(randomSubStatName) + randomSubStatValue);
+            changedSubStats[randomSubStatIndex] = true;
+        }
+    }
+
+    // changeSubStatsEntry Helper method
+    private boolean checkSubStatChanges() {
+        for (boolean hasTrue : changedSubStats) {
+            if (hasTrue) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // changeSubStats Helper method
+    private void changeSubStatsEntry(Change changeWhat) {
+        switch (changeWhat) {
+            case UPDATE -> {
+                int gainSubStatUpgrades = artifactLevel / 4 - gainedSubStatUpgrades;
+                if (gainSubStatUpgrades == 0) {
+                    return;
+                }
+                upgradeRandomSubStat(gainSubStatUpgrades);
+                gainedSubStatUpgrades += gainSubStatUpgrades;
+            } case MERGE -> {
+                // Terminates method if no changes.
+                if (!checkSubStatChanges()) {
+                    return;
+                }
+            }
+        }
+    }
+
+
+    ////// CHANGE METHODS
+
+
+    private void changeMainStat(Change changeWhat) {
+        for (Map.Entry<Stats, Double> mainStatEntry : mainStat.entrySet()) {
+            // Inserts a >>> newStatValue after each upgrade.
+            Stats mainStatEnum = mainStatEntry.getKey();
+            String mainStatName = mainStatEnum.getStat();
+            double mainStatValue = Data.MAIN_STATS.get(mainStatEnum)[artifactLevel];
+            // Refactored variables
+            switch (changeWhat) {
+                case UPDATE -> {
+                    mainStat.put(mainStatEnum, mainStatValue);
+                    updateStatValue(mainStatName, mainStatValue);
+                } case MERGE -> {
+                    mergeStatValue(mainStatName, mainStatValue);
+                }
+            }
+        }
+    }
+
+    private void changeSubStats(Change changeWhat) {
+        changeSubStatsEntry(changeWhat);
+        int i = 0;
+        for (Map.Entry<Stats,Double> subStatsEntry : subStats.entrySet()) {
+            if (changedSubStats[i]) {
+                String subStatName = subStatsEntry.getKey().getStat();
+                double subStatValue = subStatsEntry.getValue();
+                switch (changeWhat) {
+                    case UPDATE -> {
+                        updateStatValue(subStatName, subStatValue);
+                    } case MERGE -> {
+                        mergeStatValue(subStatName, subStatValue);
+                        changedSubStats[i] = false;
+                    }
+                }
+            }
+            i++;
+        }
+    }
+
+
+    ////// OUTPUT METHOD
+
 
     private void printArtifactStats() {
         artifactStats.append(String.format("%-20s\n", artifactType.getType()));
@@ -158,12 +184,12 @@ public class Rolls extends Artifact {
             if (artifactUpgrade > 20 || artifactLevel > 20) {
                 artifactLevel = 20;
             }
-            updateMainStat();
-            updateSubStats();
+            changeMainStat(Change.UPDATE);
+            changeSubStats(Change.UPDATE);
             System.out.print(artifactStats);
             System.out.print("\n");
-            mergeMainStat();
-            mergeSubStats();
+            changeMainStat(Change.MERGE);
+            changeSubStats(Change.MERGE);
         }
         Utility.inputBuffer();
         System.out.print(artifactStats);
