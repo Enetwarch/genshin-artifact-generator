@@ -110,6 +110,17 @@ public class Artifact {
     ////// SUBSTAT SUPPLIERS
     
 
+    // SUBSTAT_SUPPLIER helper method
+    protected void subStatSupplierMethod(List<Stats> subStatsPool) {
+        // Random unique substats.
+        int randomSubStatIndex = random.nextInt(subStatsPool.size());
+        Stats randomSubStatName = subStatsPool.get(randomSubStatIndex);
+        double[] randomSubStatValues = Data.SUB_STATS.get(randomSubStatName);
+        double randomSubStatValue = randomSubStatValues[random.nextInt(randomSubStatValues.length)];
+        subStats.put(randomSubStatName, randomSubStatValue);
+        subStatsPool.remove(randomSubStatName);
+    }
+
     private final Supplier<Map<Stats, Double>> SUBSTAT_SUPPLIER = () -> {
         subStats = new LinkedHashMap<>();
         int startingSubStats = random.nextInt(2) + 3; // 3 or 4.
@@ -120,12 +131,7 @@ public class Artifact {
         }
         for (int i = 0; i < startingSubStats; i++) {
             // Generates 3-4 random substats of varying rolls.
-            int randomSubStatIndex = random.nextInt(subStatsPool.size());
-            Stats randomSubStatName = subStatsPool.get(randomSubStatIndex);
-            double[] randomSubStatValues = Data.SUB_STATS.get(randomSubStatName);
-            double randomSubStatValue = randomSubStatValues[random.nextInt(randomSubStatValues.length)];
-            subStats.put(randomSubStatName, randomSubStatValue);
-            subStatsPool.remove(randomSubStatName);
+            subStatSupplierMethod(subStatsPool);
         }
         return subStats;
     };
