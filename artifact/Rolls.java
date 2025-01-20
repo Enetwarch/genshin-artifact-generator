@@ -13,30 +13,35 @@ public class Rolls extends Artifact {
     private final StringBuilder artifactStats;
     private final Map<Stats, Double> previousSubStats;
     private int gainedSubStats;
-    private boolean[] toMergeSubStats;
+    private boolean[] changedSubStats;
     public Rolls() {
         super();
         this.artifactStats = new StringBuilder();
         this.previousSubStats = new LinkedHashMap<>(subStats);
         this.gainedSubStats = 0;
-        this.toMergeSubStats = new boolean[4];
+        this.changedSubStats = new boolean[subStats.size()];
     }
 
 
     ////// CALCULATE METHODS
     
 
+    // updateStats Helper method
+    private void updateStatValue(String statName, double statValue) {
+        String formattedStatValue = formatStatValue(statName, statValue);
+        int statValueIndex = artifactStats.indexOf(String.format("%-20s", statName));
+        artifactStats.insert(statValueIndex  + 26, String.format(" >>> %-5s", formattedStatValue));
+    }
+
     private void updateMainStat() {
         for (Map.Entry<Stats, Double> mainStatEntry : mainStat.entrySet()) {
+            // Inserts a >>> newStatValue after each upgrade.
             Stats mainStatEnum = mainStatEntry.getKey();
             String mainStatName = mainStatEnum.getStat();
-            double previousMainStatValue = mainStatEntry.getValue();
-            double currentMainStatValue = Data.MAIN_STATS.get(mainStatEnum)[artifactLevel];
-            String formattedPreviousMainStatValue = formatStatValue(mainStatName, previousMainStatValue);
-            String formattedCurrentMainStatValue = formatStatValue(mainStatName, currentMainStatValue);
-            int mainStatValueIndex = artifactStats.indexOf(String.format("%-20s", mainStatName));
-            artifactStats.replace(mainStatValueIndex + 21, mainStatValueIndex + 26, String.format("%5s >>> %-5s", formattedPreviousMainStatValue, formattedCurrentMainStatValue));
-            mainStat.put(mainStatEnum, currentMainStatValue);
+            double mainStatValue = Data.MAIN_STATS.get(mainStatEnum)[artifactLevel];
+            // Refactored variables
+            updateStatValue(mainStatName, mainStatValue);
+            mainStat.put(mainStatEnum, mainStatValue);
         }
     }
 
@@ -53,46 +58,48 @@ public class Rolls extends Artifact {
             double[] randomSubStatValues = Data.SUB_STATS.get(randomSubStatName);
             double randomSubStatValue = randomSubStatValues[random.nextInt(randomSubStatValues.length)];
             subStats.put(randomSubStatName, subStats.get(randomSubStatName) + randomSubStatValue);
+            changedSubStats[randomSubStatIndex] = true;
         }
-        List<Map.Entry<Stats,Double>> previousSubStatsList = new ArrayList<>(previousSubStats.entrySet());
-        List<Map.Entry<Stats,Double>> currentSubStatsList = new ArrayList<>(subStats.entrySet());
-        for (int i = 0; i < currentSubStatsList.size(); i++) {
-            double previousSubStatValue = previousSubStatsList.get(i).getValue();
-            double currentSubStatValue = currentSubStatsList.get(i).getValue();
-            if (previousSubStatValue != currentSubStatValue) {
-                String subStatName = currentSubStatsList.get(i).getKey().getStat();
-                int subStatIndex = artifactStats.indexOf(String.format("%-20s", subStatName));
-                String formattedPreviousSubStatValue = formatStatValue(subStatName, previousSubStatValue);
-                String formattedCurrentSubStatValue = formatStatValue(subStatName, currentSubStatValue);
-                artifactStats.replace(subStatIndex + 21, subStatIndex + 26, String.format("%5s >>> %-5s", formattedPreviousSubStatValue, formattedCurrentSubStatValue));
-                toMergeSubStats[i] = true;
+        int i = 0;
+        for (Map.Entry<Stats,Double> subStatsEntry : subStats.entrySet()) {
+            if (changedSubStats[i]) {
+                String subStatName = subStatsEntry.getKey().getStat();
+                double subStatValue = subStatsEntry.getValue();
+                updateStatValue(subStatName, subStatValue);
             }
+            i++;
         }
         gainedSubStats += gainSubStats;
+    }
+
+    // mergeStats Helper method
+    private void mergeStatValue(String statName, double statValue) {
+        String formattedStatValue = formatStatValue(statName, statValue);
+        int statValueIndex = artifactStats.indexOf(String.format("%-20s", statName));
+        artifactStats.replace(statValueIndex + 21, statValueIndex + 36, String.format("%5s", formattedStatValue));
     }
 
     private void mergeMainStat() {
         for (Map.Entry<Stats, Double> mainStatEntry : mainStat.entrySet()) {
             String mainStatName = mainStatEntry.getKey().getStat();
             double mainStatValue = mainStatEntry.getValue();
-            String formattedMainStatValue = formatStatValue(mainStatName, mainStatValue);
-            int mainStatValueIndex = artifactStats.indexOf(String.format("%-20s", mainStatName));
-            artifactStats.replace(mainStatValueIndex + 21, mainStatValueIndex + 36, String.format("%5s", formattedMainStatValue));
+            mergeStatValue(mainStatName, mainStatValue);
         }
     }
 
     private void mergeSubStats() {
-        List<Map.Entry<Stats,Double>> subStatsList = new ArrayList<>(subStats.entrySet());
-        for (int i = 0; i < toMergeSubStats.length; i++) {
-            if (toMergeSubStats[i]) {
-                String subStatName = subStatsList.get(i).getKey().getStat();
-                double subStatValue = subStatsList.get(i).getValue();
+        int i = 0;
+        for (Map.Entry<Stats,Double> subStatsEntry : subStats.entrySet()) {
+            if (changedSubStats[i]) {
+                String subStatName = subStatsEntry.getKey().getStat();
+                double subStatValue = subStatsEntry.getValue();
                 String formattedSubStatValue = formatStatValue(subStatName, subStatValue);
                 int subStatIndex = artifactStats.indexOf(String.format("%-20s", subStatName));
                 artifactStats.replace(subStatIndex + 21, subStatIndex + 36, String.format("%5s", formattedSubStatValue));
             }
+            i++;
         }
-        toMergeSubStats = new boolean[4];
+        changedSubStats = new boolean[subStats.size()];
     }
 
 
@@ -160,6 +167,7 @@ public class Rolls extends Artifact {
         }
         Utility.inputBuffer();
         System.out.print(artifactStats);
+        System.out.print("\n");
     }
 
 }
