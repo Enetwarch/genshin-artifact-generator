@@ -16,18 +16,11 @@ public class Rolls extends Artifact {
     private static final String MODIFIER_ARROW = String.format(" %s ", ">".repeat(NUMBER_WIDTH - 2));
 
     private final StringBuilder artifactStats;
-    private final boolean[] changedSubStats;
     private int gainedSubStatUpgrades;
     public Rolls() {
         super();
         this.artifactStats = new StringBuilder();
-        this.changedSubStats = new boolean[subStats.size()];
         this.gainedSubStatUpgrades = 0;
-    }
-
-    private enum Change {
-        UPDATE,
-        MERGE
     }
 
 
@@ -39,61 +32,28 @@ public class Rolls extends Artifact {
         // Adds a >>> and new value to the artifact.
         String formattedStatValue = formatStatValue(statName, statValue);
         int statValueInsertIndex = artifactStats.indexOf(String.format("%-" + TEXT_WIDTH + "s", statName)) + TEXT_WIDTH + NUMBER_WIDTH;
-        artifactStats.insert(statValueInsertIndex, String.format("%s%-" + NUMBER_WIDTH + "s", MODIFIER_ARROW, formattedStatValue));
+        int statValueCheckForArrowStart = statValueInsertIndex;
+        int statValueCheckForArrowFinal = statValueCheckForArrowStart + NUMBER_WIDTH;
+        boolean alreadyUpdated = artifactStats.substring(statValueCheckForArrowStart, statValueCheckForArrowFinal).equals(MODIFIER_ARROW);
+        if (alreadyUpdated) {
+            artifactStats.replace(statValueCheckForArrowFinal, statValueCheckForArrowFinal + NUMBER_WIDTH, String.format("%-" + NUMBER_WIDTH + "s", formattedStatValue));
+        } else {
+            artifactStats.insert(statValueInsertIndex, String.format("%s%-" + NUMBER_WIDTH + "s", MODIFIER_ARROW, formattedStatValue));
+        }
     }
 
     // Change.MERGE Helper method
-    private void mergeStatValue(String statName, double statValue) {
-        // Removes the old value and >>> from the artifact.
-        String formattedStatValue = formatStatValue(statName, statValue);
-        int statValueStartingIndex = artifactStats.indexOf(String.format("%-" + TEXT_WIDTH + "s", statName)) + TEXT_WIDTH;
-        int statValueFinalIndex = statValueStartingIndex + NUMBER_WIDTH * 3;
-        artifactStats.replace(statValueStartingIndex, statValueFinalIndex, String.format("%" + NUMBER_WIDTH + "s", formattedStatValue));
-    }
-
-    // changeSubStatsEntry Helper method
-    private void upgradeRandomSubStat(int gainSubStatUpgrades) {
-        List<Stats> artifactSubStats = new ArrayList<>(subStats.keySet());
-        for (int i = 0; i < gainSubStatUpgrades; i++) {
-            // Selects a substat randomly and upgrades it every 4 artifact levels.
-            int randomSubStatIndex = random.nextInt(artifactSubStats.size());
-            Stats randomSubStatName = artifactSubStats.get(randomSubStatIndex);
-            double[] randomSubStatValues = Data.SUB_STATS.get(randomSubStatName);
-            double randomSubStatValue = randomSubStatValues[random.nextInt(randomSubStatValues.length)];
-            subStats.put(randomSubStatName, subStats.get(randomSubStatName) + randomSubStatValue);
-            changedSubStats[randomSubStatIndex] = true;
-        }
-    }
-
-    // changeSubStatsEntry Helper method
-    private boolean checkSubStatChanges() {
-        // Decides whether to skip checkSubStatChanges merging or not.
-        for (boolean hasTrue : changedSubStats) {
-            if (hasTrue) {
-                return true;
+    private void mergeValues() {
+        while (true) {
+            // Removes the old value and >>> from the artifact.
+            int currentModifierArrowIndex = artifactStats.indexOf(MODIFIER_ARROW);
+            if (currentModifierArrowIndex == -1) {
+                return;
             }
-        }
-        return false;
-    }
-
-    // changeSubStats Helper method
-    private void changeSubStatsEntry(Change changeWhat) {
-        // Decides initial requirements for changeSubStats.
-        switch (changeWhat) {
-            case UPDATE -> {
-                // Ever 4 levels gains one substat.
-                int gainSubStatUpgrades = artifactLevel / 4 - gainedSubStatUpgrades;
-                if (gainSubStatUpgrades == 0) {
-                    return;
-                }
-                upgradeRandomSubStat(gainSubStatUpgrades);
-                gainedSubStatUpgrades += gainSubStatUpgrades;
-            } case MERGE -> {
-                // Terminates method if no changes.
-                if (!checkSubStatChanges()) {
-                    return;
-                }
-            }
+            int statValueStartingIndex = currentModifierArrowIndex - NUMBER_WIDTH;
+            int statValueFinalIndex = currentModifierArrowIndex + NUMBER_WIDTH * 2;
+            String formattedStatValue = artifactStats.substring(statValueFinalIndex - NUMBER_WIDTH, statValueFinalIndex).trim();
+            artifactStats.replace(statValueStartingIndex, statValueFinalIndex, String.format("%" + NUMBER_WIDTH + "s", formattedStatValue));
         }
     }
 
@@ -109,40 +69,40 @@ public class Rolls extends Artifact {
         artifactStats.replace(artifactLevelStartingIndex, artifactLevelFinalIndex, formattedArtifactLevel);
     }
 
-    private void changeMainStat(Change changeWhat) {
+    private void changeMainStat() {
         for (Map.Entry<Stats, Double> mainStatEntry : mainStat.entrySet()) {
             Stats mainStatEnum = mainStatEntry.getKey();
             String mainStatName = mainStatEnum.getStat();
             double mainStatValue = Data.MAIN_STATS.get(mainStatEnum)[artifactLevel];
-            switch (changeWhat) {
-                case UPDATE -> {
-                    mainStat.put(mainStatEnum, mainStatValue);
-                    updateStatValue(mainStatName, mainStatValue);
-                } case MERGE -> {
-                    mergeStatValue(mainStatName, mainStatValue);
-                }
-            }
+            mainStat.put(mainStatEnum, mainStatValue);
+            updateStatValue(mainStatName, mainStatValue);
         }
     }
 
-    private void changeSubStats(Change changeWhat) {
-        changeSubStatsEntry(changeWhat);
-        int i = 0;
-        for (Map.Entry<Stats,Double> subStatsEntry : subStats.entrySet()) {
-            if (changedSubStats[i]) {
-                String subStatName = subStatsEntry.getKey().getStat();
-                double subStatValue = subStatsEntry.getValue();
-                switch (changeWhat) {
-                    case UPDATE -> {
-                        updateStatValue(subStatName, subStatValue);
-                    } case MERGE -> {
-                        mergeStatValue(subStatName, subStatValue);
-                        changedSubStats[i] = false;
-                    }
-                }
-            }
-            i++;
+    private void upgradeRandomSubStat(int gainSubStatUpgrades) {
+        List<Stats> artifactSubStats = new ArrayList<>(subStats.keySet());
+        for (int i = 0; i < gainSubStatUpgrades; i++) {
+            // Selects a substat randomly and upgrades it every 4 artifact levels.
+            int randomSubStatIndex = random.nextInt(artifactSubStats.size());
+            Stats randomSubStatEnum = artifactSubStats.get(randomSubStatIndex);
+            double[] randomSubStatValues = Data.SUB_STATS.get(randomSubStatEnum);
+            double randomSubStatValue = randomSubStatValues[random.nextInt(randomSubStatValues.length)];
+            double newSubStatValue = subStats.get(randomSubStatEnum) + randomSubStatValue;
+            subStats.put(randomSubStatEnum, newSubStatValue);
+            String subStatName = randomSubStatEnum.getStat();
+            updateStatValue(subStatName, newSubStatValue);
         }
+    }
+
+    private void changeSubStats() {
+        // Decides initial requirements for changeSubStats.
+        // Ever 4 levels gains one substat.
+        int gainSubStatUpgrades = artifactLevel / 4 - gainedSubStatUpgrades;
+        if (gainSubStatUpgrades == 0) {
+            return;
+        }
+        upgradeRandomSubStat(gainSubStatUpgrades);
+        gainedSubStatUpgrades += gainSubStatUpgrades;
     }
 
 
@@ -214,12 +174,11 @@ public class Rolls extends Artifact {
                 artifactLevel = 20;
             }
             changeArtifactLevel();
-            changeMainStat(Change.UPDATE);
-            changeSubStats(Change.UPDATE);
+            changeMainStat();
+            changeSubStats();
             System.out.print(artifactStats);
             System.out.print("\n");
-            changeMainStat(Change.MERGE);
-            changeSubStats(Change.MERGE);
+            mergeValues();
         }
         Utility.inputBuffer();
         System.out.print(artifactStats);
