@@ -9,6 +9,12 @@ import util.Utility;
 
 public class Rolls extends Artifact {
 
+    private static final int TEXT_WIDTH = 20;
+    private static final int NUMBER_WIDTH = 5;
+    private static final String OUTLINE_SEPARATOR = "=".repeat(TEXT_WIDTH + NUMBER_WIDTH);
+    private static final String INLINE_SEPARATOR = "-".repeat(TEXT_WIDTH + NUMBER_WIDTH);
+    private static final String MODIFIER_ARROW = String.format(" %s ", ">".repeat(NUMBER_WIDTH - 2));
+
     private final StringBuilder artifactStats;
     private final boolean[] changedSubStats;
     private int gainedSubStatUpgrades;
@@ -32,16 +38,17 @@ public class Rolls extends Artifact {
     private void updateStatValue(String statName, double statValue) {
         // Adds a >>> and new value to the artifact.
         String formattedStatValue = formatStatValue(statName, statValue);
-        int statValueIndex = artifactStats.indexOf(String.format("%-20s", statName));
-        artifactStats.insert(statValueIndex  + 26, String.format(" >>> %-5s", formattedStatValue));
+        int statValueInsertIndex = artifactStats.indexOf(String.format("%-" + TEXT_WIDTH + "s", statName)) + TEXT_WIDTH + NUMBER_WIDTH;
+        artifactStats.insert(statValueInsertIndex, String.format("%s%-" + NUMBER_WIDTH + "s", MODIFIER_ARROW, formattedStatValue));
     }
 
     // Change.MERGE Helper method
     private void mergeStatValue(String statName, double statValue) {
         // Removes the old value and >>> from the artifact.
         String formattedStatValue = formatStatValue(statName, statValue);
-        int statValueIndex = artifactStats.indexOf(String.format("%-20s", statName));
-        artifactStats.replace(statValueIndex + 21, statValueIndex + 36, String.format("%5s", formattedStatValue));
+        int statValueStartingIndex = artifactStats.indexOf(String.format("%-" + TEXT_WIDTH + "s", statName)) + TEXT_WIDTH;
+        int statValueFinalIndex = statValueStartingIndex + NUMBER_WIDTH * 3;
+        artifactStats.replace(statValueStartingIndex, statValueFinalIndex, String.format("%" + NUMBER_WIDTH + "s", formattedStatValue));
     }
 
     // changeSubStatsEntry Helper method
@@ -96,9 +103,10 @@ public class Rolls extends Artifact {
 
     private void changeArtifactLevel() {
         // Updates the + artifact level inline with the artifact type.
-        String formattedArtifactLevel = String.format("%5s", String.format("+%d", artifactLevel));
-        int artifactLevelIndex = artifactStats.indexOf(String.format("%-20s", artifactType.getType()));
-        artifactStats.replace(artifactLevelIndex + 21, artifactLevelIndex  + 26, formattedArtifactLevel);
+        String formattedArtifactLevel = String.format("%" + NUMBER_WIDTH + "s", String.format("+%d", artifactLevel));
+        int artifactLevelStartingIndex = artifactStats.indexOf(String.format("%-" + TEXT_WIDTH + "s", artifactType.getType())) + TEXT_WIDTH;
+        int artifactLevelFinalIndex = artifactLevelStartingIndex + NUMBER_WIDTH;
+        artifactStats.replace(artifactLevelStartingIndex, artifactLevelFinalIndex, formattedArtifactLevel);
     }
 
     private void changeMainStat(Change changeWhat) {
@@ -154,27 +162,33 @@ public class Rolls extends Artifact {
         }
     }
 
-    private void printArtifactStats() {
+    private void appendArtifactStats(String separator) {
+        artifactStats.append(String.format("%s\n", separator));
+    }
+
+    private void appendArtifactStats(String text, String number) {
+        artifactStats.append(String.format("%-" + TEXT_WIDTH + "s%" + NUMBER_WIDTH + "s\n", text, number));
+    }
+
+    private void buildArtifactStats() {
         // Printed artifact format.
-        String outlineSeparator = "=".repeat(26);
-        String inlineSeparator = "-".repeat(26);
-        artifactStats.append(String.format("%s\n", outlineSeparator));
-        artifactStats.append(String.format("%-20s %5s\n", artifactType.getType(), String.format("+%d", artifactLevel)));
-        artifactStats.append(String.format("%s\n", inlineSeparator));
+        appendArtifactStats(OUTLINE_SEPARATOR);
+        appendArtifactStats(artifactType.getType(), String.format("+%d", artifactLevel));
+        appendArtifactStats(INLINE_SEPARATOR);
         for (Map.Entry<Stats, Double> mainStatEntry : mainStat.entrySet()) {
             String mainStatName = mainStatEntry.getKey().getStat();
             double mainStatValue = mainStatEntry.getValue();
             String formattedStatValue = formatStatValue(mainStatName, mainStatValue);
-            artifactStats.append(String.format("%-20s %5s\n", mainStatName, formattedStatValue));
+            appendArtifactStats(mainStatName, formattedStatValue);
         }
-        artifactStats.append(String.format("%s\n", inlineSeparator));
+        appendArtifactStats(INLINE_SEPARATOR);
         for (Map.Entry<Stats, Double> subStatsEntry : subStats.entrySet()) {
             String subStatName = subStatsEntry.getKey().getStat();
             double subStatValue = subStatsEntry.getValue();
             String formattedStatValue = formatStatValue(subStatName, subStatValue);
-            artifactStats.append(String.format("%-20s %5s\n", subStatName, formattedStatValue));
+            appendArtifactStats(subStatName, formattedStatValue);
         }
-        artifactStats.append(String.format("%s\n", outlineSeparator));
+        appendArtifactStats(OUTLINE_SEPARATOR);
         System.out.print(artifactStats + "\n");
     }
 
@@ -183,7 +197,7 @@ public class Rolls extends Artifact {
 
 
     public void calculateToConsole() {
-        printArtifactStats();
+        buildArtifactStats();
         boolean proceedOrNot = Utility.getUserInputBoolean("Upgrade artifact");
         System.out.print("\n");
         if (!proceedOrNot) {
