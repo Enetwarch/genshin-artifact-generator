@@ -1,6 +1,6 @@
 package com.github.enetwarch.genshinartifactgenerator.util;
-import java.util.Random;
 import java.text.DecimalFormat;
+import java.util.Random;
 
 public class Output {
 

@@ -1,5 +1,4 @@
 package com.github.enetwarch.genshinartifactgenerator.util;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Input {
@@ -21,14 +20,14 @@ public class Input {
             try {
                 inputMessageInt(message);
                 userInput = Integer.parseInt(scanner.nextLine().trim());
-            } catch (InputMismatchException e) {
+                if (userInput >= min && userInput <= max) {
+                    return userInput;
+                } else {
+                    inputErrorInt(min, max);
+                }
+            } catch (NumberFormatException e) {
                 inputErrorInt(min, max); 
                 continue;
-            }
-            if (userInput >= min && userInput <= max) {
-                return userInput; 
-            } else {
-                inputErrorInt(min, max);
             }
         }
     }
@@ -47,15 +46,9 @@ public class Input {
             inputMessageBoolean(message);
             userInput = scanner.nextLine().toLowerCase();
             switch (userInput) {
-                case "y" -> {
-                    return true;
-                }
-                case "n" -> {
-                    return false;
-                }
-                default -> {
-                    inputErrorBoolean();
-                }
+                case "y": return true;
+                case "n": return false;
+                default: inputErrorBoolean();
             }
         }
     }
