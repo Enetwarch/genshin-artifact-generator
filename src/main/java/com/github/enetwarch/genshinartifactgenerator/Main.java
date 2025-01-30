@@ -1,26 +1,18 @@
 package com.github.enetwarch.genshinartifactgenerator;
-import com.github.enetwarch.genshinartifactgenerator.artifact.Rolls;
-import com.github.enetwarch.genshinartifactgenerator.util.Utility;
+import com.github.enetwarch.genshinartifactgenerator.artifact.Artifact;
+import com.github.enetwarch.genshinartifactgenerator.util.Output;
+import com.github.enetwarch.genshinartifactgenerator.util.Input;
 
 public class Main {
-    
-    private static void terminateProgram() {
-        StringBuilder terminateProgram = new StringBuilder();
-        terminateProgram.append("Genshin Artifact Generator\n");
-        terminateProgram.append("Code by: Enetwarch\n");
-        System.out.print(terminateProgram);
-        Utility.scanner.close();
-        System.exit(0);
-    }
 
     public static void main(String[] args) {
         while (true) {
-            Rolls sampleArtifact = new Rolls();
-            sampleArtifact.calculateToConsole();
-            boolean proceedOrNot = Utility.getUserInputBoolean("Make another artifact");
-            System.out.print("\n");
+            Artifact artifact = new Artifact();
+            artifact.logToConsole();
+            boolean proceedOrNot = Input.getUserInputBoolean("Make another artifact");
+            Output.printSpace();
             if (!proceedOrNot) {
-                terminateProgram();
+                Output.terminateProgram();
             }
         }
     }
