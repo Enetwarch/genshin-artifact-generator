@@ -1,5 +1,6 @@
-import artifact.Rolls;
-import util.Utility;
+package com.github.enetwarch.genshinartifactgenerator;
+import com.github.enetwarch.genshinartifactgenerator.artifact.Rolls;
+import com.github.enetwarch.genshinartifactgenerator.util.Utility;
 
 public class Main {
     

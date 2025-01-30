@@ -1,7 +1,7 @@
-package artifact;
-import data.Data;
-import data.Data.Stats;
-import data.Data.Type;
+package com.github.enetwarch.genshinartifactgenerator.artifact;
+import com.github.enetwarch.genshinartifactgenerator.data.Data;
+import com.github.enetwarch.genshinartifactgenerator.data.Stats;
+import com.github.enetwarch.genshinartifactgenerator.data.Type;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;

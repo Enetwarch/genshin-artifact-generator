@@ -1,11 +1,11 @@
-package artifact;
-import data.Data;
-import data.Data.Stats;
+package com.github.enetwarch.genshinartifactgenerator.artifact;
+import com.github.enetwarch.genshinartifactgenerator.data.Data;
+import com.github.enetwarch.genshinartifactgenerator.data.Stats;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import util.Utility;
+import com.github.enetwarch.genshinartifactgenerator.util.Utility;
 
 public class Rolls extends Artifact {
 
@@ -14,9 +14,9 @@ public class Rolls extends Artifact {
     private static final String OUTLINE_SEPARATOR = "=".repeat(TEXT_WIDTH + NUMBER_WIDTH);
     private static final String INLINE_SEPARATOR = "-".repeat(TEXT_WIDTH + NUMBER_WIDTH);
     private static final String MODIFIER_ARROW = String.format(" %s ", ">".repeat(NUMBER_WIDTH - 2));
-
     private final StringBuilder artifactStats;
     private int gainedSubStatUpgrades;
+
     public Rolls() {
         super();
         this.artifactStats = new StringBuilder();

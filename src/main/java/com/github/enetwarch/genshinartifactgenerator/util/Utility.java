@@ -1,4 +1,4 @@
-package util;
+package com.github.enetwarch.genshinartifactgenerator.util;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
