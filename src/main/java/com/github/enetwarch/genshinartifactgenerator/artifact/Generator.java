@@ -6,16 +6,39 @@ import com.github.enetwarch.genshinartifactgenerator.data.Data;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Map;
 
 public class Generator {
 
-    public static Type generateArtifactType() {
+    private Type artifactType;
+    private Map<Stats, Double> mainStat;
+    private Map<Stats, Double> subStats;
+
+    public Generator() {
+        this.artifactType = generateArtifactType();
+        this.mainStat = generateMainStat(this.artifactType);
+        this.subStats = generateSubStats(this.mainStat.keySet().iterator().next());
+    }
+
+    public Type getArtifactType() {
+        return artifactType;
+    }
+
+    public Map<Stats, Double> getMainStat() {
+        return mainStat;
+    }
+
+    public Map<Stats, Double> getSubStats() {
+        return subStats;
+    }
+
+    private static Type generateArtifactType() {
         Type[] artifactTypes = Type.values();
         int randomType = Output.random.nextInt(artifactTypes.length);
         return artifactTypes[randomType];
     }
 
-    public static EnumMap<Stats, Double> generateMainStat(Type artifactType) {
+    private static EnumMap<Stats, Double> generateMainStat(Type artifactType) {
         Stats mainStatEnum;
         switch (artifactType) {
             case FLOWER -> mainStatEnum = generateFlowerMainStat();
@@ -79,7 +102,7 @@ public class Generator {
         return mainStat;
     }
 
-    public static LinkedHashMap<Stats, Double> generateSubStats(Stats mainStatEnum) {
+    private static LinkedHashMap<Stats, Double> generateSubStats(Stats mainStatEnum) {
         LinkedHashMap<Stats, Double> subStats = new LinkedHashMap<>();
         ArrayList<Stats> subStatsPool = new ArrayList<>(Data.SUB_STATS.keySet());
         subStatsPool.remove(mainStatEnum);

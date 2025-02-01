@@ -12,20 +12,20 @@ import java.util.Map;
 public class Artifact {
 
     private int artifactLevel;
+    private int gainedSubStatUpgrades;
     private final Type artifactType;
     private final Map<Stats, Double> mainStat;
     private final Map<Stats, Double> subStats;
     private final ArrayList<Stats> subStatsEnums;
-    private int gainedSubStatUpgrades;
     private final StringBuilder artifactStats;
 
-    public Artifact() {
+    public Artifact(Generator generator) {
         this.artifactLevel = 0;
-        this.artifactType = Generator.generateArtifactType();
-        this.mainStat = Generator.generateMainStat(this.artifactType);
-        this.subStats = Generator.generateSubStats(this.mainStat.keySet().iterator().next());
-        this.subStatsEnums = new ArrayList<>(subStats.keySet());
         this.gainedSubStatUpgrades = 0;
+        this.artifactType = generator.getArtifactType();
+        this.mainStat = generator.getMainStat();
+        this.subStats = generator.getSubStats();
+        this.subStatsEnums = new ArrayList<>(subStats.keySet());
         this.artifactStats = new StringBuilder();
     }
 
